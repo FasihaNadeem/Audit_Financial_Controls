@@ -12,7 +12,7 @@ In this phase, an auditor reviews vendor payment transactions to test whether th
 
 This project was built to bridge the gap between audit theory and real-world application — using realistic data structure, actual audit techniques, and professional documentation standards.
 
-## What is an Audit of Financial Controls
+## What is an Audit of Financial Controls?
 
 Every organization has internal rules about how payments should be processed. For example:
 
@@ -36,11 +36,9 @@ The project is an Excel workbook with 5 sheets, each representing a specific par
 | 4 | Sampling | Auditor's testing workspace |
 | 5 | Findings | Documented control failures |
 
----
-
 ## Phase 1 — Planning
 
-### What Happens in Planning
+### What Happens in Planning?
 
 Before touching any data, an auditor prepares an **Audit Program** — a structured checklist of everything that will be tested during the audit. This document serves as the roadmap for the entire audit.
 
@@ -56,13 +54,9 @@ The Audit Program in this project covers the following areas:
 
 Without a plan, an auditor might miss important areas or spend too much time on low-risk items. Planning ensures that the audit is focused, efficient, and covers all key risk areas.
 
----
-
 ## Phase 2 — Fieldwork
 
 Fieldwork is where the actual audit testing takes place. It is divided into four steps.
-
----
 
 ### Step 1 — Initial Data Review
 
@@ -72,45 +66,36 @@ The first thing an auditor does when receiving transaction data from the Finance
 
 In this project, the following checks were performed visually and through basic Excel techniques:
 
----
-
 #### Missing Invoices
 Every payment above a certain threshold must have a supporting invoice. The Invoice Number column was filtered to find blank cells.
 
 ```
 Filter → Invoice No. column → Blanks
 ```
-
----
-
 #### Duplicate Transactions
 A duplicate payment occurs when the same vendor is paid the same amount more than once. This was detected using the COUNTIFS formula in a helper column.
 
-```excel
+```
 =COUNTIFS($C$3:$C$500, C3, $E$3:$E$500, E3)
 ```
 
 Any result greater than 1 indicates a potential duplicate.
-
----
 
 #### Round Numbers
 Genuine invoices from vendors almost always include GST, delivery charges, and other components — making the total a non-round number like PKR 47,832. An unusually high number of round amounts like exactly PKR 50,000 or PKR 100,000 can indicate fabricated invoices.
 
 Round numbers were flagged using the MOD function:
 
-```excel
+```
 =IF(MOD(E3, 10000) = 0, "Round Number", "OK")
 ```
 
 Conditional formatting was also applied to visually highlight round amounts in red.
 
----
-
 #### Weekend Transactions
 Payments processed on weekends are unusual because offices are closed. Weekend transactions were identified using the WEEKDAY function:
 
-```excel
+```
 =IF(WEEKDAY(B3, 2) > 5, "Weekend", "OK")
 ```
 
@@ -118,19 +103,14 @@ The parameter `2` starts the week on Monday. Any result above 5 means Saturday o
 
 Not all weekend transactions are findings. Only those combined with other red flags — such as a suspicious vendor or missing invoice — were escalated.
 
----
-
 #### Threshold Splitting
 This is a technique where a single large payment is intentionally broken into multiple smaller payments to stay below the approval limit. For example, if payments above PKR 50,000 require VP Finance approval, someone might split a PKR 1,50,000 payment into three payments of PKR 49,000 each to avoid getting senior approval.
 
 This was detected by checking for multiple payments to the same vendor in the PKR 45,000–49,999 range:
 
-```excel
+```
 =AND(COUNTIFS($C$3:$C$500, C3, $E$3:$E$500, E3) > 1, E3 >= 45000, E3 < 50000)
 ```
-
----
-
 ### Step 2 — Sampling
 
 **Sheet: Sampling (Sheet 4)**
@@ -139,13 +119,11 @@ An auditor cannot test all 500 transactions individually — it would be impract
 
 In this project, two sampling methods were used:
 
----
-
 #### Random Sample — 40 Transactions
 
 40 transactions were randomly selected from the full population of 500 using the RANDBETWEEN function:
 
-```excel
+```
 =RANDBETWEEN(3, 501)
 ```
 
@@ -155,15 +133,13 @@ This generates a random row number. The transaction from that row in the Raw Dat
 
 Random sampling ensures that every transaction in the population has an equal chance of being selected — making the sample representative of the full dataset.
 
----
-
 #### High Value Sample — Top 10 Transactions
 
 The 10 highest-value transactions were always included in the sample regardless of random selection. High-value transactions carry more financial risk and are always prioritized in audit testing.
 
 The top 10 amounts were identified using the LARGE function:
 
-```excel
+```
 =LARGE(RAW_DATA!E3:E501, 1)    → Highest amount
 =LARGE(RAW_DATA!E3:E501, 2)    → Second highest
 =LARGE(RAW_DATA!E3:E501, 3)    → Third highest
@@ -171,8 +147,6 @@ The top 10 amounts were identified using the LARGE function:
 ```
 
 Each identified amount was then located in the Raw Data sheet using CTRL+F and the transaction details were copied to the Sampling sheet.
-
----
 
 ### Step 3 — Controls Testing
 
@@ -190,7 +164,7 @@ For each sampled transaction, the Approved By column was checked against the amo
 
 An approval violation was flagged using this formula:
 
-```excel
+```
 =IF(AND(E3 > 200000, OR(G3 = "Finance Manager", G3 = "Head Ops")), "Violation", "OK")
 ```
 
@@ -198,15 +172,13 @@ This checks whether a payment exceeding PKR 200,000 was approved by someone with
 
 **Finding identified:** One transaction of PKR 285,750 was found approved by a Finance Manager instead of the CFO — a clear control bypass.
 
----
-
 ### Step 4 — Vendor Verification
 
 **Sheet: Vendor Master (Sheet 2) + Sampling (Sheet 4)**
 
 Every vendor that received a payment was cross-checked against the approved Vendor Master List using VLOOKUP. The Vendor Master contains the official list of registered and approved vendors along with their NTN numbers and contact persons.
 
-```excel
+```
 =VLOOKUP(E7, VENDOR_MASTER!B:F, 5, 0)
 ```
 
@@ -226,18 +198,6 @@ Every vendor that received a payment was cross-checked against the approved Vend
 
 Any result other than Approved requires investigation.
 
----
-
-**What is NTN?**
-NTN stands for National Tax Number — a unique identifier issued by FBR (Federal Board of Revenue) to every registered business in Pakistan. It is used to verify that a vendor is a legitimate, formally registered company. A vendor without an NTN should not be receiving payments.
-
----
-
-**What is a Contact Person?**
-Each vendor in the master list has a designated contact person. In audit, the contact person is used for **third party confirmation** — if a transaction looks suspicious, the auditor can reach out directly to the vendor to verify whether the invoice was genuinely issued and whether the payment was received.
-
----
-
 ## Formulas Used
 
 | Formula | Purpose | Where Used |
@@ -251,13 +211,9 @@ Each vendor in the master list has a designated contact person. In audit, the co
 | `=VLOOKUP()` | Match vendor names against the approved vendor list | Sampling sheet |
 | `=IF()` | Label results as OK or flagged based on conditions | Multiple sheets |
 
----
-
 ## Findings Summary
 
 Three control failures were identified and documented in the Findings sheet.
-
----
 
 ### F-001 — Missing Invoice
 **Risk Level:** Medium
@@ -266,16 +222,12 @@ A payment of PKR 80,648 was processed and completed without a supporting invoice
 
 **Recommendation:** Obtain the invoice immediately. No payment should be processed in future without a valid invoice on file at the time of processing.
 
----
-
 ### F-002 — Duplicate Payment
 **Risk Level:** Medium
 
 Two separate payments were made to the same vendor for the exact same amount of PKR 16,735 on the same date. Both transactions referenced the same invoice number — confirming this was a duplicate payment. The remark on the second transaction said "Reprocessed."
 
 **Recommendation:** Verify with the bank whether both payments were debited. If confirmed, recover PKR 16,735 from the vendor. Implement a system control to block reprocessing of already paid invoices.
-
----
 
 ### F-003 — Approval Rule Violation
 **Risk Level:** High
@@ -284,25 +236,6 @@ A payment of PKR 285,750 was approved by a Finance Manager. Per company policy, 
 
 **Recommendation:** Obtain retrospective CFO approval immediately. Review all transactions above PKR 200,000 to identify similar violations. Implement a system-level restriction to prevent junior staff from approving payments beyond their authorized limit.
 
----
+## Conclusion:
 
-## Key Learnings
-
-Working through this project practically demonstrates several important audit concepts:
-
-**Sampling is not guessing.** There is a structured logic behind how a sample is selected — combining random selection with risk-based selection of high-value items ensures balanced and meaningful coverage.
-
-**One red flag is not always a finding.** A weekend transaction alone is not a finding. A weekend transaction combined with a suspicious vendor and a missing invoice — that is a finding. Context and combination of red flags matter.
-
-**The auditor's job is to find and report — not to fix.** When a duplicate payment was found, it was documented with a recommendation. Reversing the payment is the Finance team's responsibility — not the auditor's.
-
-**Clean-looking data does not mean clean controls.** Even well-formatted, complete-looking data can hide control failures. Approval violations and duplicate payments are not visible from a quick glance — they require structured testing with the right formulas and techniques.
-
-**Documentation is everything.** Every step taken, every transaction tested, and every finding identified was recorded in working papers. In a real audit, undocumented work is treated as work that was never done.
-
----
-
-*This project was independently built for practice and learning. All data is fictional.*
-`Sheet 5 — Audit Findings`
-This sheet contains the formal findings identified during the audit.
-A finding is raised when a control has failed — for example, a payment was made without an invoice, or a payment was approved by someone who did not have the authority to approve it. Each finding includes a description of what went wrong, the risk level, and a recommendation for how it should be fixed.
+This project is a practical implementation of how an internal auditor approaches the audit of financial controls over vendor payments. The data is fictional but the process, techniques, and documentation follow real-world audit practices. Anyone looking at this project — whether a student trying to understand how audits work or a professional reviewing the methodology — should be able to follow the entire audit journey from planning through to findings. The goal was never to work with perfect data. The goal was to work the way auditors actually work.
