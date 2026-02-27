@@ -1,9 +1,11 @@
-### Audit of Financial Controls 
+# Audit of Financial Controls 
 
-Disclaimer
+##Disclaimer:
+
 This project is not related to any real company. It was independently created for learning and practice purposes only. The data used is fictional but structured to closely reflect how real financial data looks in industry.
 
-Project Objective:
+##Project Objective:
+
 This is a hands-on practice project that simulates how an Internal Auditor performs an Audit of Financial Controls over vendor payments.
 In real organizations, the Finance department processes hundreds of payments every year — to vendors, suppliers, and service providers. An internal auditor's job is to independently review these payments and check whether the company's internal rules and controls are being followed properly.
 This project takes that exact process and implements it practically — from receiving raw financial data all the way to documenting audit findings.
@@ -17,10 +19,10 @@ Were any payments duplicated?
 
 To understand this process deeply, this project was built to practically implement each step an auditor follows — using real-world structure, realistic data, and actual audit techniques.
 
-Project Structure
+##Project Structure
 The project is built as an Excel workbook with 5 sheets. Here is what each sheet contains and why:
 
-Sheet 1 — Audit Program
+`Sheet 1 — Audit Program`
 The audit program is the planning document. Before an auditor touches any data, they plan what they are going to test and why. This sheet lists all the audit steps that were performed in this project — what was checked, what the objective was, and whether it was completed.
 In real audits, this document is prepared during the planning phase before fieldwork begins.
 
