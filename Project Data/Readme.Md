@@ -1,6 +1,6 @@
 # Audit of Financial Controls 
 
-##Disclaimer:
+## Disclaimer:
 
 This project is not related to any real company. It was independently created for learning and practice purposes only. The data used is fictional but structured to closely reflect how real financial data looks in industry.
 
